@@ -1,0 +1,36 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment and secrets (never commit real values)
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Streamlit / local state (adjust if you want to version these)
+.streamlit/secrets.toml
+
+# Airflow / ingest: local caches and runtime logs (do not commit)
+ingest_data/hf_cache/
+ingest_data/logs/

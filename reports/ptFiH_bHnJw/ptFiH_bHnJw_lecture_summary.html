@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stanford CS336 Language Modeling from Scratch – Lecture 3: Architectures, Hyperparameters – (2025)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .segment {
+            margin-bottom: 50px;
+            padding: 30px;
+            background-color: #fafafa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .segment h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .segment-frame {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .segment-frame img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .segment-content {
+            margin-top: 20px;
+        }
+        .segment-content p {
+            margin-bottom: 15px;
+        }
+        .segment-content ul, .segment-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .segment-content li {
+            margin-bottom: 8px;
+        }
+        .segment-content strong {
+            color: #2c3e50;
+        }
+        .timestamp {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ecf0f1;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stanford CS336 Language Modeling from Scratch – Lecture 3: Architectures, Hyperparameters – (2025)</h1>
+        <p style="color: #7f8c8d; margin-bottom: 30px;">
+            This summary highlights the key discussions from the lecture video,
+            with visual frames captured at important moments.
+        </p>
+
+        <div class="segment">
+            <h2>1. Introduction to Lecture: Goals and Logistics for Transformer Architecture</h2>
+            <div class="timestamp">Time: 00:05 - 01:43</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_01_Lecture_introduction,_goals_and_logistics.jpg" alt="Frame from 00:05">
+            </div>
+
+            <div class="segment-content">
+                <h2>Lecture Introduction</h2>
+<p>Welcome to today’s lecture! In this session, we will delve into the intricate details of transformer architecture and the various training choices that come with it. It is essential for you to update your assignment code from the course website to ensure you have the latest information and resources.</p>
+
+<h3>Lecture Goals</h3>
+<p>The primary aim of this lecture is to:</p>
+<ul>
+  <li><strong>Explain detailed design choices</strong> in large language model (LLM) architectures.</li>
+  <li>Share insights from the experience of many published models to enhance your understanding.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>During this lecture, we will focus on:</p>
+<ul>
+  <li>The <strong>practical aspects</strong> of architecture and hyperparameter choices used in real LLMs.</li>
+  <li>A comprehensive review of a <strong>transformer</strong>, followed by an exploration of a modern variant.</li>
+  <li>An analysis of recent model choices to identify <strong>common useful practices</strong>.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<p>Please keep the following points in mind:</p>
+<ul>
+  <li>Make sure to <strong>pull updates</strong> to assignments from the course website, as there are minor bug fixes.</li>
+  <li>This lecture will be more detailed than some other courses, so expect to receive <strong>PowerPoint PDFs</strong> instead of runnable Python notebooks.</li>
+</ul>
+<p>We look forward to an engaging and informative session!</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>2. Exploring the Transformer Architecture and Its Variants</h2>
+            <div class="timestamp">Time: 01:43 - 03:34</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_02_Transformer_review_and_the_implemented_variant.jpg" alt="Frame from 01:43">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section reviews the original <strong>Transformer</strong> structure and explains the course implementation variant. The instructor highlights the standard blocks that make up the architecture:</p>
+<ul>
+    <li><strong>Position embeddings</strong></li>
+    <li><strong>Multi-head attention</strong></li>
+    <li><strong>Layer norms</strong></li>
+    <li><strong>Residual stream</strong></li>
+    <li><strong>MLP</strong> (feed-forward layer)</li>
+    <li><strong>Softmax</strong></li>
+</ul>
+<p>Additionally, key changes that students implement include:</p>
+<ul>
+    <li><strong>Pre-layer-normalization</strong></li>
+    <li><strong>RoPE</strong> (rotary position embeddings)</li>
+    <li><strong>Gated feed-forward</strong> (SwiGlu/Swigloo)</li>
+    <li>Removal of many <strong>bias terms</strong></li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Transformer:</strong> A neural network architecture for sequence modeling that stacks attention layers, feed-forward layers, layer normalization, and residual (skip) connections.</li>
+    <li><strong>Position embeddings:</strong> Vectors added or applied to token embeddings so the model knows token order.</li>
+    <li><strong>Multi-head attention:</strong> An attention mechanism that splits model dimensions into several 'heads' to attend in parallel to different aspects of the input.</li>
+    <li><strong>Residual stream:</strong> A shortcut that adds layer input to its output to help gradients flow through deep networks.</li>
+    <li><strong>MLP (feed-forward layer):</strong> The small fully-connected network inside each transformer block that processes each token independently.</li>
+    <li><strong>Softmax:</strong> A function that turns raw scores (logits) into a probability distribution.</li>
+    <li><strong>Pre-norm:</strong> Putting layer normalization before each sub-block inside the residual path.</li>
+    <li><strong>RoPE:</strong> A method of adding relative position information by rotating query/key vectors based on position.</li>
+    <li><strong>SwiGlu / Swigloo:</strong> A gated feed-forward variant that uses a specific activation (SwiGLU-like) and gating to improve performance.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>Modern transformer variants tweak many internal choices, including:</p>
+<ul>
+    <li>Where norms are placed</li>
+    <li>Activation functions</li>
+    <li>Positional encodings</li>
+    <li>Bias usage</li>
+</ul>
+<p>The course implementation follows a widely used approach, ensuring students gain practical insights into these modifications.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>3. Exploring Convergent Trends in Recent Model Releases</h2>
+            <div class="timestamp">Time: 03:34 - 04:29</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_03_Survey_of_recent_model_releases_and_convergent_trends.jpg" alt="Frame from 03:34">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>The instructor surveys a variety of recent large language model (LLM) papers, highlighting recurring patterns across model releases. This survey emphasizes that while some design choices converge and become common, many others continue to vary. By studying multiple models, we can identify what truly matters in model design.</p>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Convergent evolution (in architectures):</strong> This refers to different teams independently making the same design choices because those choices prove effective in practice.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>Over the years, various models have experimented with different options, including:</p>
+<ul>
+    <li>Absolute vs relative positional encodings</li>
+    <li>Different normalization techniques</li>
+    <li>Various activation functions</li>
+</ul>
+<p>However, many models are now converging on similar defaults. Collecting evidence from these models aids in selecting sensible defaults rather than relying on guesswork for hyperparameters.</p>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Expect to update this lecture annually, as the model landscape evolves rapidly.</li>
+    <li>The instructor has compiled a spreadsheet tracking architecture changes from 2017 to 2025 to identify trends.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>4. Exploring Architecture Variations and Hyperparameters in Transformers</h2>
+            <div class="timestamp">Time: 04:29 - 05:19</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_04_Lecture_roadmap_and_architecture_topics_to_cover.jpg" alt="Frame from 04:29">
+            </div>
+
+            <div class="segment-content">
+                <h2>Lecture Roadmap: Architecture and Hyperparameters</h2>
+
+<p>This lecture segment previews three main parts that will guide our exploration of transformer architectures:</p>
+
+<ul>
+    <li><strong>Architecture Variations</strong></li>
+    <li><strong>Hyperparameter Choices</strong></li>
+    <li><strong>Stability and Attention Variants</strong></li>
+</ul>
+
+<p>The instructor will outline key subtopics including:</p>
+<ul>
+    <li><strong>Activations</strong></li>
+    <li><strong>Feed-Forwards</strong></li>
+    <li><strong>Attention Variants</strong></li>
+    <li><strong>Positional Embeddings</strong></li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Architecture Variations:</strong> Different ways to build transformer blocks, including norms, activations, MLP types, and attention patterns.</li>
+    <li><strong>Hyperparameters:</strong> Tunable choices such as hidden size, feed-forward size, number of heads, and vocabulary size.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>The lecture will follow this structure:</p>
+<ol>
+    <li>Survey of <strong>Architecture Variants</strong></li>
+    <li>Discussion on how to choose <strong>Hyperparameters</strong></li>
+    <li>Coverage of <strong>Training Stability</strong> and <strong>Attention Variants</strong></li>
+</ol>
+
+<h3>Important Notes</h3>
+<p>Be aware that some topics, particularly <strong>Attention Variants</strong>, may be covered at the end of the lecture if time permits. This lecture is content-heavy, so we will move swiftly through the material.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>5. Understanding Pre-norm and Post-norm in Model Training Stability</h2>
+            <div class="timestamp">Time: 05:19 - 11:18</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_05_Pre-norm_vs_post-norm,_training_stability,_and_the__double_norm__idea.jpg" alt="Frame from 05:19">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section explains the placement of layer normalization in neural networks and the shift from <strong>post-norm</strong> to <strong>pre-norm</strong> configurations. The pre-norm approach simplifies training without the need for special warm-up procedures and helps to reduce loss and gradient spikes. A newer variant, known as the <strong>double norm</strong>, incorporates layer normalization both before and after blocks to enhance stability in large models.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Post-norm:</strong> Layer normalization is applied after each sub-block when integrating it back into the residual stream; this was the older transformer choice.</li>
+  <li><strong>Pre-norm:</strong> Layer normalization is applied before each sub-block, outside the residual connection; this modern standard is preferred for its stability.</li>
+  <li><strong>Double norm:</strong> An informal term used to describe the application of layer normalization both before and after non-residual sub-blocks to enhance training stability in large models.</li>
+  <li><strong>Learning rate warm-up:</strong> A technique that involves gradually increasing the learning rate at the beginning of training to prevent instability.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Post-norm</strong> often necessitates careful learning-rate warm-up and can lead to unstable training characterized by large gradient spikes.</li>
+  <li><strong>Pre-norm</strong> generally results in more stable gradients, eliminating the need for complex warm-up schedules in many scenarios.</li>
+  <li>The <strong>double-norm</strong> variant, which applies normalization both before and after blocks, has been introduced in recent models and can further mitigate instability in very large models.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>The primary practical takeaway is to use <strong>pre-norm</strong> (layer norms outside the residual) for improved training stability.</li>
+  <li>The <strong>double-norm</strong> variation is gaining traction; it may simplify training for large models but remains an area of active research.</li>
+  <li>There are exceptions, such as the <strong>OPT 350M</strong> model, where post-norm was utilized and led to training issues; such exceptions can occur.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>6. Understanding LayerNorm, RMSNorm, and the Impact of Bias Terms in Modern Models</h2>
+            <div class="timestamp">Time: 11:18 - 17:14</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_06_LayerNorm_formula,_RMSNorm,_and_dropping_bias_terms.jpg" alt="Frame from 11:18">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section delves into the mathematical principles behind <strong>LayerNorm</strong>, the transition many models have made to <strong>RMSNorm</strong>, and the rationale for the removal of bias terms in contemporary architectures.</p>
+<p><strong>RMSNorm</strong> offers a simpler and slightly faster alternative to LayerNorm by eliminating mean subtraction and bias shifts. This simplification not only enhances computational efficiency but also contributes to optimization stability and reduces memory movement.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>LayerNorm:</strong> A normalization technique that subtracts the mean of activations and divides by their standard deviation, followed by scaling (gamma) and shifting (beta) the result.</li>
+  <li><strong>RMSNorm:</strong> A more straightforward normalization method that divides by the root mean square (standard deviation) without subtracting the mean or applying a shift, resulting in fewer operations and parameters.</li>
+  <li><strong>Bias term (in linear layers):</strong> A learned vector added after a linear layer; many modern models eliminate these to streamline computations and potentially enhance stability.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Performance Efficiency:</strong> RMSNorm often achieves performance comparable to LayerNorm while requiring fewer memory operations, which can significantly speed up runtime, especially on GPUs.</li>
+  <li><strong>Memory Movement Matters:</strong> Even minor reductions in memory movement (such as fewer parameters to load/store) can lead to substantial runtime improvements, as non-matrix-multiply operations can dominate runtime despite having fewer floating-point operations (FLOPs).</li>
+  <li><strong>Simplifying Models:</strong> Removing bias terms not only simplifies the model by reducing the number of parameters and memory accesses but also empirically stabilizes optimization during large-scale training.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li><strong>Adopt RMSNorm:</strong> When feasible, utilize RMSNorm as it has become widely adopted in models like the LLaMA family, PaLM, Chinchilla, and T5, making it a practical default choice.</li>
+  <li><strong>Consider All Costs:</strong> Do not assume that FLOPs are the sole cost factor; memory movement and parameter loading significantly impact runtime.</li>
+  <li><strong>Model Variability:</strong> Not all models adhere to these trends; some (such as certain proprietary or older models) may still implement full LayerNorm or retain bias terms.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>7. Understanding Gated Linear Units (GLUs) and Their Impact on Modern Neural Networks</h2>
+            <div class="timestamp">Time: 19:24 - 28:51</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_07_Activations_and_gated_linear_units_(GLUs)_such_as_SwiGlu_Swigloo.jpg" alt="Frame from 19:24">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section reviews activation functions and explains why gated linear units (GLUs), such as SwiGLU, have become prevalent in modern neural networks. GLUs enhance the activation process by multiplying an activation by a learned gate term on an entry-wise basis. Empirical studies indicate that GLU variants typically result in lower loss and improved downstream performance, leading to their widespread adoption in contemporary large language models (LLMs).</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Activation function</strong> (ReLU, GELU, Swish, etc.): A nonlinear function applied element-wise within neural network layers.</li>
+  <li><strong>ReLU (Rectified Linear Unit)</strong>: Defined as max(0, x), this simple activation function zeros out negative values.</li>
+  <li><strong>GELU (Gaussian Error Linear Unit)</strong>: An activation similar to ReLU but smoother; it multiplies x by the Gaussian cumulative distribution function (CDF) of x.</li>
+  <li><strong>Swish (SiLU)</strong>: Defined as x * sigmoid(x), this is another smooth activation function.</li>
+  <li><strong>Gated Linear Unit (GLU)</strong>: A feed-forward architecture that gates one transformation by another, typically splitting and multiplying element-wise to allow the network to control flow per component.</li>
+  <li><strong>SwiGlu / Swigloo</strong>: A specific variant of GLU that combines Swish-like activation with gating; it is widely used in modern models.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>GLUs introduce a learned gate (an additional projection) that multiplies the main activation output, providing enhanced expressive control within the multilayer perceptron (MLP).</li>
+  <li>To maintain similar parameter counts, gated models often reduce hidden sizes (e.g., scaling D_ff down by approximately 2/3) to match the total parameters of non-gated counterparts.</li>
+  <li>Numerous ablation studies (e.g., Nang et al., Nom Shazir) demonstrate that GLU variants consistently outperform plain ReLU or GELU across various tasks.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>While GLUs are not strictly necessary—some highly effective models (e.g., GPT-3, Neotron, Falcon) utilize other activations—they are a practical and common choice in models developed post-2023.</li>
+  <li>Gated activations introduce a slight increase in computational overhead; however, memory movement typically represents the dominant cost, resulting in a minimal impact on runtime.</li>
+  <li>When transitioning to GLU, it is essential to adjust D_ff (the feed-forward hidden size) to maintain a comparable parameter count (e.g., use 8/3 * D_model for GLU when starting from a 4x rule).</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>8. Understanding Serial vs Parallel Transformer Blocks</h2>
+            <div class="timestamp">Time: 28:51 - 31:56</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_08_Serial_vs_parallel_transformer_blocks.jpg" alt="Frame from 28:51">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section contrasts <strong>serial transformer blocks</strong> (attention then MLP) with <strong>parallel block designs</strong> (compute attention and MLP in parallel and add results). Parallel blocks can improve system efficiency by fusing computations but may be less common; most recent models still use serial blocks.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Serial transformer block</strong>: A block that runs attention first, then passes the output into the MLP (sequential composition of sub-blocks).</li>
+  <li><strong>Parallel transformer block</strong>: A block that computes attention and the MLP from the same input in parallel, then sums their outputs into the residual stream.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Parallel layers</strong> allow fusing some operations (layer norms, matrix multiplies) and can improve GPU utilization and system efficiency by enabling more parallel compute.</li>
+  <li><strong>Serial composition</strong> might be slightly more expressive (composition of transforms), but parallel forms trade some expressiveness for runtime gains.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>Parallel blocks were popularized in some open-source and large-scale projects (e.g., GPT-J, PaLM) but many models still use serial blocks.</li>
+  <li>When choosing between parallel and serial, consider system-level trade-offs like GPU utilization and kernel fusion opportunities.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>9. Understanding Rotary Positional Embeddings (RoPE) in Modern Models</h2>
+            <div class="timestamp">Time: 32:35 - 39:03</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_09_Position_embeddings_and_RoPE_(Rotary_Positional_Embeddings).jpg" alt="Frame from 32:35">
+            </div>
+
+            <div class="segment-content">
+                <h2>Position Embeddings and RoPE (Rotary Positional Embeddings)</h2>
+
+<p>This segment explains different position embedding choices and why many models prefer <strong>RoPE</strong> (Rotary Positional Embeddings). RoPE applies rotations to query and key vectors so that inner products depend only on relative position differences. Importantly, RoPE is applied on queries and keys within the attention mechanism, rather than at the bottom token embeddings.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Absolute Position Embeddings:</strong> Learned vectors added to token embeddings to encode token position directly.</li>
+  <li><strong>Relative Position Embeddings:</strong> Methods that encode the distance between tokens rather than their absolute positions.</li>
+  <li><strong>RoPE (Rotary Positional Embeddings):</strong> A method that rotates pairs of dimensions of query/key vectors by an angle depending on token position, ensuring inner products reflect relative positions only.</li>
+  <li><strong>Inner Product Invariance to Rotation:</strong> The property that the dot product between two vectors remains unchanged if both are rotated by the same transformation; RoPE utilizes this to encode relative offsets.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>RoPE enforces attention behavior that depends on relative distances by rotating query/key vectors before computing attention scores.</li>
+  <li>RoPE is implemented by splitting high-dimensional vectors into 2D pairs and rotating each pair by position-dependent angles, allowing for fast/slow frequencies across dimensions. This enables some pairs to capture short-range patterns while others capture long-range patterns.</li>
+  <li>RoPE is applied when generating queries and keys within the attention mechanism, rather than adding vectors at the input embedding layer.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>RoPE has become a widely adopted default for position encoding in many modern models because it effectively captures relative positions and supports context-length extrapolation.</li>
+  <li>The rotation rates (thetas) are not trained; they follow a fixed schedule similar to sinusoidal encodings.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>10. Understanding Hyperparameters: Feed-Forward Size and Model Ratios</h2>
+            <div class="timestamp">Time: 41:44 - 46:20</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_10_Hyperparameters__feed-forward_size_(D_ff),_D_model_ratios,_and_evidence.jpg" alt="Frame from 41:44">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section explains common choices for feed-forward size relative to model dimension and provides empirical evidence for those ratios. The usual choice is <strong>D_ff = 4 * D_model</strong> for non-gated MLPs. Gated models typically scale <strong>D_ff</strong> down, commonly to about <strong>8/3 * D_model</strong>, to maintain similar parameter counts. Scaling-law experiments indicate that this area has a broad basin where many ratios perform well.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>D_model:</strong> The hidden dimension size of the transformer (size of token vectors in the residual stream).</li>
+  <li><strong>D_ff (feed-forward dimension):</strong> The inner dimension (hidden size) inside the MLP of a transformer block; usually an up-projection before down-projection.</li>
+  <li><strong>GLU parameter-matched scaling:</strong> A rough rule for gated MLPs to reduce <strong>D_ff</strong> so total parameters remain similar; commonly <strong>D_ff ≈ 8/3 * D_model</strong> when starting from <strong>D_ff = 4 * D_model</strong>.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>The canonical rule is <strong>D_ff = 4 * D_model</strong> for simple MLPs; gated MLPs reduce <strong>D_ff</strong> to keep parameter counts similar (around <strong>2.6–2.7× D_model</strong> in many models).</li>
+  <li>Some models intentionally choose much larger <strong>D_ff</strong> (e.g., T5 used a <strong>64×</strong> multiplier) to favor very wide MLPs, which can be beneficial but are not required.</li>
+  <li>Kaplan et al.'s scaling experiments show a wide basin of near-optimal ratios (roughly <strong>1–10×</strong>), making <strong>4×</strong> a practical default.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>If you use GLU, reduce <strong>D_ff</strong> to match parameters (the course assignments ask students to follow the gated variant used by many modern models).</li>
+  <li>T5 and some other models are deliberate outliers that chose very large <strong>D_ff</strong>; such choices can work but may be less standard.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>11. Understanding Head Dimension Ratios and Model Aspect Ratios in Transformers</h2>
+            <div class="timestamp">Time: 47:25 - 53:02</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_11_Head_dimension_ratios,_model_aspect_ratio_(depth_vs_width),_and_evidence.jpg" alt="Frame from 47:25">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This discussion covers how to set head dimensions and the model's depth vs width (aspect ratio). The usual rule is to keep <strong>D_model</strong> = <strong>num_heads</strong> * <strong>head_dim</strong> (a 1:1 ratio so <strong>head_dim</strong> = <strong>D_model</strong> / <strong>num_heads</strong>). Empirical studies show an aspect-ratio sweet spot around ~100 hidden units per layer for many scales.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>num_heads</strong>: The number of separate attention heads inside multi-head attention.</li>
+  <li><strong>head_dim</strong>: The size of each attention head; typically <strong>head_dim</strong> = <strong>D_model</strong> / <strong>num_heads</strong> under the common convention.</li>
+  <li><strong>Aspect ratio</strong> (in transformer context): The ratio between model width (<strong>D_model</strong>) and number of layers (depth); it reflects whether a model is wider or deeper for a fixed parameter budget.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>Most models set <strong>head_dim</strong> so that the total <strong>D_model</strong> splits evenly across heads; this keeps parameter allocation balanced across heads.</li>
+  <li>Some research warns that very small <strong>head_dim</strong> per head could reduce expressiveness (low-rank attention), but practical models with the 1:1 convention perform well.</li>
+  <li><strong>Kaplan-style experiments</strong> and other studies find an optimal region where having about ~100 hidden dimensions per layer (<strong>D_model</strong> / depth) works well across scales.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li><strong>T5</strong> was an exception in several design choices (including head ratios); exceptions exist but most recent successful models follow these defaults.</li>
+  <li>Systems and parallelism constraints (pipeline vs tensor parallelism) can affect choices: width and depth interact with how you distribute work across GPUs.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>12. Exploring Vocabulary Size Trends and Regularization Techniques in NLP</h2>
+            <div class="timestamp">Time: 54:41 - 61:28</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_12_Vocabulary_size_trends_and_regularization_choices_(dropout_vs_weight_decay).jpg" alt="Frame from 54:41">
+            </div>
+
+            <div class="segment-content">
+                <h2>Vocabulary Size Trends and Regularization Choices</h2>
+
+<p>This section delves into the trends surrounding vocabulary sizes in natural language processing (NLP) and the evolving preferences for regularization techniques, specifically comparing <strong>dropout</strong> and <strong>weight decay</strong>.</p>
+
+<h3>Vocabulary Size Trends</h3>
+<p>Recent trends indicate that vocabulary sizes have been increasing, often ranging from <strong>100,000 to 250,000</strong> tokens. This is particularly evident in production and multilingual models. The reasons for this trend include:</p>
+<ul>
+    <li>Large vocabularies enable better coverage of multiple languages and symbols, including emojis and other tokens.</li>
+    <li>For high-resource single-language models, smaller vocabularies may suffice.</li>
+</ul>
+
+<h3>Regularization Techniques: Dropout vs. Weight Decay</h3>
+<p>In the realm of regularization, dropout has seen a decline in popularity, while weight decay remains a common choice. Here's why:</p>
+<ul>
+    <li><strong>Dropout</strong>: This technique randomly zeroes out activations during training to mitigate overfitting. However, it has become less common in modern pretraining due to:</li>
+    <ul>
+        <li>The use of very large datasets.</li>
+        <li>Typically only one pass over the data, making overfitting less of a concern.</li>
+    </ul>
+    <li><strong>Weight Decay</strong>: This involves L2 regularization on model weights, which reduces parameter magnitudes during training. Its continued use is attributed to:</li>
+    <ul>
+        <li>Its interaction with learning-rate schedules.</li>
+        <li>Improvement of final training optimization dynamics, especially towards the end of training.</li>
+    </ul>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>The primary benefit of weight decay in large language model (LLM) pretraining is not merely to reduce overfitting; rather, it alters optimizer dynamics and can enhance training loss during learning-rate decay.</li>
+    <li>There is currently no strong published consensus on the reasons behind the decline of dropout in large-scale pretraining, although empirical evidence suggests its reduced usage.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>13. Addressing Training Stability: Solutions for Softmax Issues, Z-Loss, QK-Norm, and Soft Capping</h2>
+            <div class="timestamp">Time: 65:16 - 74:05</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_13_Training_stability_problems_and_fixes__softmax_issues,_Z-loss,_QK-norm,_and_soft_capping.jpg" alt="Frame from 65:16">
+            </div>
+
+            <div class="segment-content">
+                <h3>Training Stability Problems and Fixes</h3>
+<p>In this section, we explore how instability, characterized by large gradient spikes, can halt training processes. We will also discuss practical solutions to these issues.</p>
+
+<h3>Understanding Softmax-Related Issues</h3>
+<p>Operations related to <strong>softmax</strong>—both in outputs and attention mechanisms—can lead to numerical and optimization challenges. Here are some common fixes:</p>
+<ul>
+  <li><strong>Z-loss</strong>: A regularizer applied to the softmax normalizer.</li>
+  <li><strong>QK-norm</strong>: Normalization applied to queries and keys.</li>
+  <li><strong>Soft capping of logits</strong>: A method to limit extreme values before applying softmax.</li>
+</ul>
+
+<h3>Key Definitions</h3>
+<ul>
+  <li><strong>Softmax</strong>: The exponential-and-normalize function used for attention weights and output token probabilities; it can be numerically unstable when inputs are large.</li>
+  <li><strong>Z-loss</strong>: An auxiliary loss that encourages the softmax normalizer Z to be near 1 (or log Z near 0), reducing numerical instability.</li>
+  <li><strong>QK-norm</strong>: The application of layer normalization to queries and keys before computing attention scores, which helps bound inputs to softmax and reduces spikes.</li>
+  <li><strong>Soft capping of logits</strong>: A technique that passes logits through a function (e.g., scaled tanh) to limit extreme values prior to softmax.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>It is essential to understand the following concepts:</p>
+<ul>
+  <li>Large gradient spikes often arise from softmax operations (involving exponentials and divisions) and can lead to training failures.</li>
+  <li>Z-loss directly regularizes the output softmax normalizer, converting it into a more numerically stable form when implemented successfully.</li>
+  <li>QK-norm stabilizes the attention softmax by normalizing queries and keys before computing dot products, thereby reducing the magnitude of large scores.</li>
+  <li>Soft capping can effectively clip extreme logits but may negatively impact performance in certain setups; QK-norm is generally more effective.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<p>Many recent models, such as <strong>PaLM</strong>, <strong>Gemma 2</strong>, and <strong>DCLM</strong>, have adopted Z-loss and QK-norm as practical solutions for stability issues. These fixes are particularly crucial when training large or multimodal models, or when introducing new modalities, as these changes can lead to sudden distribution shifts.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>14. Optimizing Inference: Key Techniques for Efficient Attention Mechanisms</h2>
+            <div class="timestamp">Time: 75:14 - 86:48</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_14_Inference_optimizations__KV_cache,_arithmetic_intensity,_MQA_GQA,_and_long-context_attention_pattern.jpg" alt="Frame from 75:14">
+            </div>
+
+            <div class="segment-content">
+                <h2>Understanding Inference Optimizations</h2>
+<p>This closing section delves into the costs associated with inference and the various optimizations that can be employed to enhance performance. Key topics include:</p>
+<ul>
+    <li><strong>KV Cache</strong></li>
+    <li><strong>Arithmetic Intensity Trade-offs</strong></li>
+    <li><strong>Multi-Query Attention (MQA)</strong></li>
+    <li><strong>Group-Query Attention (GQA)</strong></li>
+    <li><strong>Long Context Attention Patterns</strong></li>
+</ul>
+<p>These techniques aim to reduce memory movement during autoregressive generation while maintaining computational feasibility, especially for long contexts.</p>
+
+<h3>Key Definitions</h3>
+<ul>
+    <li><strong>KV Cache:</strong> A mechanism for storing past keys and values during autoregressive generation, allowing the model to compute only new queries at each step instead of recalculating everything.</li>
+    <li><strong>Arithmetic Intensity:</strong> The ratio of arithmetic operations (FLOPs) to memory accesses; a higher ratio indicates better GPU efficiency.</li>
+    <li><strong>Multi-Query Attention (MQA):</strong> An attention design that utilizes multiple query heads while sharing keys and values (single K/V), which reduces memory movement for the KV cache.</li>
+    <li><strong>Group-Query Attention (GQA):</strong> A compromise approach where keys and values are grouped into a smaller number of categories, balancing memory efficiency and expressiveness.</li>
+    <li><strong>Sparse / Sliding-Window Attention:</strong> Attention patterns that focus on nearby tokens or follow a fixed sparse connection set to mitigate the quadratic cost associated with increased sequence length.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>In autoregressive inference, the KV cache is utilized to compute attention one new row at a time. This alters memory access patterns and results in lower arithmetic intensity compared to training. Here are some critical points:</p>
+<ul>
+    <li>The KV cache leads to repeated memory movement of keys and values. MQA mitigates these movements by sharing K/V across query heads, thereby enhancing throughput during inference.</li>
+    <li>GQA serves as a middle ground between full multi-head attention and MQA, allowing designers to balance expressiveness with efficiency.</li>
+    <li>For handling very long contexts, modern models often combine techniques: they may use occasional full self-attention layers (without position encodings) alongside several local-window layers with RoPE. This hybrid approach effectively extrapolates to long contexts.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Both MQA and GQA can slightly alter model behavior; however, some studies indicate minimal quality loss with significant gains in inference speed and memory efficiency.</li>
+    <li>Long-context designs, including sparse, sliding-window, and hybrid blocks, are active areas of research. Different teams adopt varying patterns; for instance, GPT-3 employed sparse patterns, while recent LLaMA variants utilized hybrid block patterns.</li>
+    <li>When optimizing inference, the central constraints are arithmetic intensity and memory movement. It is crucial to select attention patterns and head designs that align with GPU memory and networking capabilities.</li>
+</ul>
+            </div>
+        </div>
+
+        <p style="margin-top: 40px; color: #7f8c8d; font-size: 0.9em; text-align: center;">
+            Generated automatically from lecture transcript and video analysis.
+        </p>
+    </div>
+</body>
+</html>

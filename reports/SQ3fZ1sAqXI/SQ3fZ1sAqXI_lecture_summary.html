@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stanford CS336 Language Modeling from Scratch – Lecture 1: Overview and Tokenization – (2025)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .segment {
+            margin-bottom: 50px;
+            padding: 30px;
+            background-color: #fafafa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .segment h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .segment-frame {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .segment-frame img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .segment-content {
+            margin-top: 20px;
+        }
+        .segment-content p {
+            margin-bottom: 15px;
+        }
+        .segment-content ul, .segment-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .segment-content li {
+            margin-bottom: 8px;
+        }
+        .segment-content strong {
+            color: #2c3e50;
+        }
+        .timestamp {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ecf0f1;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stanford CS336 Language Modeling from Scratch – Lecture 1: Overview and Tokenization – (2025)</h1>
+        <p style="color: #7f8c8d; margin-bottom: 30px;">
+            This summary highlights the key discussions from the lecture video,
+            with visual frames captured at important moments.
+        </p>
+
+        <div class="segment">
+            <h2>1. Welcome to CS 336: Language Models From Scratch</h2>
+            <div class="timestamp">Time: 00:05 - 00:56</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_01_Course_introduction_and_staff.jpg" alt="Frame from 00:05">
+            </div>
+
+            <div class="segment-content">
+                <h3>Course Introduction</h3>
+<p>Welcome to <strong>CS 336</strong>, a course dedicated to teaching you how to build <strong>language models from scratch</strong>. In this course, you will learn about the entire pipeline involved in creating these models, from data systems to modeling techniques.</p>
+
+<h3>Meet Your Instructors</h3>
+<p>The course is led by <strong>Percy</strong> and <strong>Tatsu</strong>, who will guide you through the complexities of language modeling. They are supported by a team of <strong>Teaching Assistants (TAs)</strong> and <strong>Course Assistants (CAs)</strong> to ensure you have the best learning experience possible.</p>
+
+<h3>Course Goals</h3>
+<ul>
+    <li>Understand the full pipeline of building language models.</li>
+    <li>Gain hands-on experience in coding and systems work.</li>
+    <li>Learn how each component of a language model functions.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Lectures will be available publicly on <strong>YouTube</strong>, allowing anyone interested to learn alongside you.</li>
+    <li>This is a <strong>hands-on course</strong>, and you are expected to engage actively in coding and systems work.</li>
+</ul>
+
+<p>We are excited to embark on this journey of learning and discovery with you!</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>2. The Importance of Building Language Models from Scratch</h2>
+            <div class="timestamp">Time: 02:00 - 03:59</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_02_Why_build_language_models_from_scratch_(motivation).jpg" alt="Frame from 02:00">
+            </div>
+
+            <div class="segment-content">
+                <h3>Why Build Language Models from Scratch?</h3>
+<p>In today's world, many researchers are becoming increasingly detached from the low-level details of model building. This detachment is largely due to the prevalence of prompting closed models, which can obscure the underlying mechanics of language models. In this segment, we explore the motivations behind teaching the construction of models from the ground up.</p>
+
+<h3>Key Motivations</h3>
+<p>Building models from scratch offers several significant benefits:</p>
+<ul>
+    <li><strong>Understanding Core Concepts:</strong> By implementing models yourself, you gain a deeper understanding of the fundamental ideas that drive machine learning.</li>
+    <li><strong>Engagement with Low-Level Details:</strong> Engaging with the intricacies of model architecture fosters a more comprehensive grasp of how language models operate.</li>
+    <li><strong>Support for Fundamental Research:</strong> Constructing models from the ground up allows for innovative research that can lead to new discoveries.</li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Prompting:</strong> Providing a prepared input string to a pre-built model to receive a response, without altering the model's weights.</li>
+    <li><strong>Abstraction:</strong> A simplified interface (such as string in, string out) that conceals the inner workings of a system.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li>While prompting and APIs enable widespread access to models, they often obscure critical engineering and scientific details.</li>
+    <li>Some research requires a complete overhaul of the entire stack—data, systems, and models—allowing for co-design of components.</li>
+    <li>Building models end-to-end equips researchers with insights into trade-offs that remain hidden when solely relying on closed models.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Exclusively relying on prompting can mask significant failures and limitations of models.</li>
+    <li>This course emphasizes the development of tools and intuition that underpin deep research, rather than merely teaching how to use APIs.</li>
+</ul>
+<p>In conclusion, the journey of building language models from scratch not only enhances understanding but also fosters a culture of innovation and critical thinking in the field of machine learning.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>3. Understanding the Limits of Industrial-Scale Models: Why Small-Scale Results Can Mislead</h2>
+            <div class="timestamp">Time: 03:59 - 07:05</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_03_Limits_of_industrial-scale_models_and_why_small-scale_results_can_mislead.jpg" alt="Frame from 03:59">
+            </div>
+
+            <div class="segment-content">
+                <h2>Limits of Industrial-Scale Models</h2>
+<p>This segment discusses the challenges associated with modern large models, which are often expensive and closed off from public scrutiny. It highlights how small models can yield misleading results, particularly in the context of scaling.</p>
+
+<h3>Key Insights</h3>
+<p>Here are two critical examples illustrating the limitations of small-scale models:</p>
+<ol>
+  <li><strong>Compute Allocation:</strong> The distribution of compute resources between attention and MLP (Multi-Layer Perceptron) layers varies significantly with scale. At smaller scales, these layers may have similar compute costs, but this changes dramatically as models grow larger.</li>
+  <li><strong>Emergent Behaviors:</strong> Certain capabilities, such as in-context learning, only manifest after reaching a substantial scale. Therefore, experiments conducted on small models may fail to capture these behaviors.</li>
+</ol>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Parameter:</strong> A single numeric value in a model that is learned during training.</li>
+  <li><strong>FLOPs:</strong> Short for floating-point operations; a measure of compute work done while training or running models.</li>
+  <li><strong>Emergent Behavior:</strong> A capability or pattern that only appears after a model reaches a certain size or training scale.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Frontier Models:</strong> These very large models require enormous resources to train and are often not fully documented by their creators.</li>
+  <li><strong>Compute Cost Dynamics:</strong> At small scales, attention and MLP layers can have similar compute costs, but at larger scales, MLPs may dominate, altering which optimizations become significant.</li>
+  <li><strong>Scaling Effects:</strong> Some behaviors, like in-context learning, only emerge after sufficient scaling, meaning small experiments may overlook these critical aspects.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<p>While it is possible to acquire many technical skills at a small scale, it is crucial to be cautious about the conclusions drawn regarding large-scale behavior. This course will cover both the mechanics and mindset necessary for understanding these models, but some intuitions about large-scale operations can only be partially grasped through small-scale experiments.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>4. Understanding the Three Types of Knowledge in Our Class</h2>
+            <div class="timestamp">Time: 07:02 - 08:41</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_04_Three_types_of_knowledge_the_class_aims_to_teach.jpg" alt="Frame from 07:02">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>The instructors divide useful knowledge into three kinds: <strong>mechanics</strong>, <strong>mindset</strong>, and <strong>intuitions</strong>.</p>
+<ul>
+    <li><strong>Mechanics</strong>: Concrete building blocks (e.g., transformers, parallelism).</li>
+    <li><strong>Mindset</strong>: How to think about efficiency and scaling.</li>
+    <li><strong>Intuitions</strong>: Empirical rules about what data and modeling choices work, which are harder to teach fully.</li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Mechanics</strong>: Concrete technical skills and components (models, optimizers, systems) that you can implement and measure.</li>
+    <li><strong>Mindset</strong>: The way of thinking engineers and researchers use, such as focusing on efficiency and scaling trade-offs.</li>
+    <li><strong>Intuitions</strong>: Experience-based judgments about which datasets, architectures, or hyperparameters tend to work well.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li><strong>Mechanics can be taught well</strong>: You will implement transformers and system components.</li>
+    <li><strong>Mindset</strong> emphasizes squeezing value from hardware and taking scaling seriously.</li>
+    <li><strong>Intuitions</strong> about what works at large scale are only partially teachable because scale can change which choices succeed.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<p>The course will aim to give <strong>mechanics</strong> and <strong>mindset</strong> strongly, and partial exposure to large-scale <strong>intuitions</strong>.</p>
+<p>Expect to learn practical efficiency-minded approaches, not just theoretical ideas.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>5. The Bitter Lesson: Why Algorithmic Efficiency Matters</h2>
+            <div class="timestamp">Time: 09:33 - 12:11</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_05_Understanding_the_'bitter_lesson'_and_importance_of_algorithmic_efficiency.jpg" alt="Frame from 09:33">
+            </div>
+
+            <div class="segment-content">
+                <h3>Understanding the Bitter Lesson</h3>
+<p>The concept of the <strong>bitter lesson</strong> highlights a crucial insight in the realm of computational efficiency: while scaling is important, the choice of algorithms and their efficiency is equally vital. As we scale operations, the cost of wasted compute becomes significantly high, making it imperative to focus on both algorithmic and operational efficiency.</p>
+
+<h3>Key Definitions</h3>
+<ul>
+    <li><strong>Bitter lesson</strong>: This refers to the understanding that general methods utilizing more compute tend to scale better over time. However, the more accurate perspective is that <strong>algorithms at scale matter</strong>—combining efficient algorithms with scale yields the best results.</li>
+    <li><strong>Algorithmic efficiency</strong>: This term describes how effectively an algorithm utilizes compute resources and data to achieve high accuracy. Enhanced efficiency leads to significant resource savings.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li><strong>Accuracy</strong> is influenced by both the compute resources allocated and the efficiency of the algorithms employed.</li>
+    <li>Between 2012 and 2019, notable algorithmic improvements resulted in substantial speedups (e.g., up to <strong>44x</strong>) in training times for various tasks, often surpassing the advancements made in hardware alone.</li>
+    <li>At the frontier scale, where costs can reach hundreds of millions to billions, even minor inefficiencies can lead to significant financial losses.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>It is crucial not to misconstrue scaling as merely a matter of throwing money at a problem; enhancing algorithms and systems is essential for success.</li>
+    <li>This course will place a strong emphasis on maximizing efficiency within the constraints of compute and data budgets.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>6. Exploring the Evolution and Landscape of Language Models</h2>
+            <div class="timestamp">Time: 12:15 - 18:02</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_06_History_and_current_landscape_of_language_models.jpg" alt="Frame from 12:15">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section provides a brief history of language models and the recent rise of <strong>foundation</strong> and <strong>closed frontier models</strong>. It explains how past research has built many ingredients, such as <strong>attention</strong>, <strong>optimizers</strong>, and <strong>model parallelism</strong>, that have led to modern scaling and the split between closed and open models.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Language model:</strong> A model that assigns probabilities to sequences of text and can predict the next tokens.</li>
+  <li><strong>Foundation model:</strong> A large model trained on broad data that can be adapted to many downstream tasks (examples include ELMo, BERT, T5).</li>
+  <li><strong>Closed model:</strong> A model whose weights and training details are not publicly shared and may be available only via an API.</li>
+  <li><strong>Open weights model:</strong> A model where the learned weights are published for others to run and study.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>Early large-scale language work included <strong>n-gram models</strong> trained on huge token counts; modern models differ significantly in architectures and capabilities.</li>
+  <li>Key ingredients developed over the years include:</li>
+  <ul>
+    <li>Neural language models</li>
+    <li>Sequence models (RNNs)</li>
+    <li>Attention mechanisms</li>
+    <li>Adam optimizer</li>
+    <li>Efforts on model parallelism</li>
+  </ul>
+  <li>The community now has a mix of <strong>closed frontier models</strong> (large and private) and <strong>open-source efforts</strong> that publish weights and sometimes data.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>There are different levels of openness:</li>
+  <ul>
+    <li>Fully closed</li>
+    <li>Open weights (no data)</li>
+    <li>Fully open (weights + data + code)</li>
+  </ul>
+  <li>Learning to build models yourself helps fill gaps left by incomplete public documentation of large closed models.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>7. Understanding Executable Lectures and Course Logistics in ML Systems</h2>
+            <div class="timestamp">Time: 18:07 - 26:17</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_07_Executable_lecture_demo_and_course_logistics.jpg" alt="Frame from 18:07">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>The instructor presents an <strong>executable lecture</strong> that integrates runnable code while explaining the course logistics, including:</p>
+<ul>
+    <li><strong>Assignments</strong></li>
+    <li><strong>Workload</strong></li>
+    <li><strong>Target Audience</strong></li>
+</ul>
+<p>This course is intensive, requiring students to build many components from scratch. It also offers <strong>unit tests</strong> and access to a cluster equipped with modern GPUs.</p>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Executable lecture:</strong> A lecture format that allows code execution, displays environment states, and links to definitions during the teaching process.</li>
+    <li><strong>Unit tests:</strong> Automated checks that validate the correctness of individual parts of student code.</li>
+    <li><strong>H100:</strong> A state-of-the-art GPU (NVIDIA H100) utilized for extensive model training; students have access to a cluster featuring these GPUs.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li><strong>The class is demanding:</strong> Expect five units of work with significant programming and systems tasks. One student likened the workload to that of multiple other classes combined.</li>
+    <li><strong>Assignments are built-from-scratch:</strong> Students receive minimal scaffolding and must implement components independently, though unit tests and adapters assist in validating their work.</li>
+    <li><strong>Cluster usage:</strong> Utilize the provided cluster for benchmarks, but prioritize local prototyping to conserve cluster time.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>This class is designed for students eager to gain a deep understanding of ML systems; it may not be suitable for those looking to quickly experiment with fine-tuning or conduct concurrent research.</li>
+    <li>Start assignments early, as the cluster tends to be busy as deadlines approach. Be sure to read the cluster usage guide thoroughly.</li>
+    <li>While AI coding tools can be beneficial, students must use them judiciously and take responsibility for their own learning, avoiding over-reliance on these tools.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>8. Exploring Course Units: An In-Depth Look at the Basics Unit</h2>
+            <div class="timestamp">Time: 26:47 - 33:36</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_08_Course_units_overview_and_the_Basics_unit.jpg" alt="Frame from 26:47">
+            </div>
+
+            <div class="segment-content">
+                <h3>Course Units Overview</h3>
+<p>The instructor presents the five main course pillars:</p>
+<ul>
+    <li><strong>Basics</strong></li>
+    <li><strong>Systems</strong></li>
+    <li><strong>Scaling Laws</strong></li>
+    <li><strong>Data</strong></li>
+    <li><strong>Alignment</strong></li>
+</ul>
+<p>The <strong>Basics</strong> unit focuses on establishing a full pipeline that includes:</p>
+<ul>
+    <li><strong>Tokenizer</strong></li>
+    <li><strong>Model Architecture</strong> (Transformer)</li>
+    <li><strong>Optimizer</strong></li>
+    <li><strong>Training Loop</strong></li>
+    <li><strong>Leaderboard</strong> to minimize perplexity</li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Tokenizer:</strong> A tool that converts text strings into sequences of integers (tokens) and back again.</li>
+    <li><strong>Transformer:</strong> A neural network architecture based on attention that is the backbone of modern language models.</li>
+    <li><strong>BPE (Byte Pair Encoding) Tokenizer:</strong> A tokenizer that learns token pieces from data by repeatedly merging common pairs of bytes or symbols.</li>
+    <li><strong>Optimizer (e.g., AdamW):</strong> An algorithm that updates model parameters during training to reduce loss.</li>
+    <li><strong>Perplexity:</strong> A common language model evaluation metric that measures how well a model predicts a sample; lower is better.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>The <strong>Basics</strong> unit covers:</p>
+<ul>
+    <li>Tokenization (BPE)</li>
+    <li>The original transformer architecture</li>
+    <li>Cross-entropy loss</li>
+    <li>An optimizer like AdamW</li>
+    <li>Training loops in PyTorch</li>
+</ul>
+<p>Additionally, it is important to note that:</p>
+<ul>
+    <li>Many small architectural improvements (activation functions, positional embeddings, normalization choices) can significantly impact performance when combined.</li>
+    <li>Assignments include implementing a BPE tokenizer and a transformer using limited allowed PyTorch primitives, as well as a timed H100 benchmarking task.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>The implementation of the tokenizer has surprised many students in past iterations — it can be more work than expected.</li>
+    <li>You can prototype locally without large GPUs; only final benchmarks require cluster time.</li>
+    <li>Small architecture changes and hyperparameter tuning can lead to large performance differences, so attention to detail is crucial.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>9. Maximizing Hardware Efficiency: Understanding Kernels, Parallelism, and Inference</h2>
+            <div class="timestamp">Time: 33:39 - 40:26</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_09_Systems_unit__kernels,_parallelism,_and_inference.jpg" alt="Frame from 33:39">
+            </div>
+
+            <div class="segment-content">
+                <h2>Summary</h2>
+<p>This unit covers how to get the most from hardware by focusing on:</p>
+<ul>
+    <li>Writing efficient <strong>GPU kernels</strong></li>
+    <li>Utilizing <strong>parallelism</strong> across GPUs and nodes</li>
+    <li>Optimizing <strong>inference</strong> (running models)</li>
+</ul>
+<p>Students will:</p>
+<ul>
+    <li>Write kernels using <strong>Triton</strong></li>
+    <li>Learn parallelism strategies</li>
+    <li>Study inference phases and speedup tricks</li>
+</ul>
+
+<h2>Definitions</h2>
+<ul>
+    <li><strong>GPU:</strong> A processor with many cores designed for parallel floating-point computations used in ML training and inference.</li>
+    <li><strong>Kernel:</strong> A small, performance-critical piece of code (often on GPU) that implements core operations like matrix multiply.</li>
+    <li><strong>Triton:</strong> A toolkit for writing custom GPU kernels more easily.</li>
+    <li><strong>Data parallelism:</strong> A method that splits input data across multiple workers, each holding a full copy of the model.</li>
+    <li><strong>Model (tensor) parallelism:</strong> A method that splits model parameters across multiple GPUs because the model is too large to fit on one device.</li>
+    <li><strong>Inference:</strong> Running a trained model to generate outputs (e.g., next tokens) from input prompts.</li>
+    <li><strong>Prefill:</strong> The inference stage where you process all tokens of the given prompt in parallel (same as training forward pass).</li>
+    <li><strong>Decode (autoregressive decoding):</strong> The phase that generates tokens one-by-one, where each new token depends on prior generated tokens.</li>
+    <li><strong>Speculative decoding:</strong> A technique that uses a cheaper model to generate several tokens ahead and then validates them with the main model to speed decoding.</li>
+</ul>
+
+<h2>Key Concepts</h2>
+<ul>
+    <li><strong>GPUs</strong> have fast compute units on-chip and off-chip memory; moving data is often the main bottleneck.</li>
+    <li><strong>Kernels</strong> must minimize data movement (tiling, fusion) to fully utilize GPU compute.</li>
+    <li><strong>Multi-GPU training</strong> requires careful partitioning of parameters, activations, and gradients to reduce communication overhead (e.g., NVLink, switches).</li>
+    <li><strong>Inference</strong> consists of two parts: <strong>prefill</strong> (parallel-friendly) and <strong>decode</strong> (sequential and harder to parallelize); decode is often memory-bound and latency-sensitive.</li>
+</ul>
+
+<h2>Important Notes</h2>
+<ul>
+    <li>You will implement a GPU kernel and simple parallelism in assignment two; full-scale model parallelism (e.g., FSDP) is complicated to build from scratch.</li>
+    <li>Always <strong>profile</strong> and <strong>benchmark</strong> to find real bottlenecks before optimizing.</li>
+    <li>The inference cost globally can exceed training cost because inference repeats for every use of the model.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>10. Understanding Scaling Laws and the Chinchilla Rule for Model Optimization</h2>
+            <div class="timestamp">Time: 40:54 - 44:20</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_10_Scaling_laws_unit_and_the_Chinchilla_rule.jpg" alt="Frame from 40:54">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This unit teaches how to run small-scale experiments and fit scaling laws to predict model performance at larger compute budgets. The key question is how to trade off model size and data (tokens) given a fixed <strong>FLOPs budget</strong>; the <strong>Chinchilla rule</strong> provides a practical ratio.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>FLOPs budget:</strong> The total amount of floating-point operations available for training; used as a compute budget measure.</li>
+  <li><strong>Scaling laws:</strong> Empirical relationships that show how model loss or accuracy changes with model size, data size, and compute.</li>
+  <li><strong>Chinchilla optimal (rule of thumb):</strong> A result that gives the best ratio of data tokens to model parameters for a given compute budget (roughly 20 tokens per parameter in the studied regime).</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>For a fixed compute budget, you must choose model size (parameters) and dataset size (tokens) — scaling laws show the optimal trade-off.</li>
+  <li>Empirical studies reveal near-linear trends that allow for extrapolation and practical rules of thumb, such as the Chinchilla rule.</li>
+  <li>In <strong>Assignment Three</strong>, students will utilize a simulated training API: they will run many small experiments, fit a scaling curve, and predict optimal hyperparameters for larger scales.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li><strong>Scaling law predictions</strong> ignore inference cost; they optimize training loss for a given compute budget only.</li>
+  <li>The assignment enforces a simulated FLOPs budget to teach careful experiment selection and prioritization.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>11. Mastering Data: Evaluation, Curation, Filtering, and Deduplication</h2>
+            <div class="timestamp">Time: 44:48 - 50:24</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_11_Data_unit__evaluation,_curation,_filtering,_and_deduplication.jpg" alt="Frame from 44:48">
+            </div>
+
+            <div class="segment-content">
+                <h2>Summary</h2>
+<p>This section focuses on the critical role of data in determining the capabilities of a model. Key topics include:</p>
+<ul>
+    <li>How to evaluate language models</li>
+    <li>Methods for collecting and cleaning web data, specifically using <strong>Common Crawl</strong></li>
+    <li>Techniques for filtering and deduplication</li>
+    <li>Legal and ethical considerations surrounding data usage</li>
+</ul>
+<p>In <strong>Assignment Four</strong>, students will process raw crawl data to enhance its quality.</p>
+
+<h2>Definitions</h2>
+<ul>
+    <li><strong>Common Crawl:</strong> A large public web crawl dataset containing raw HTML from numerous websites.</li>
+    <li><strong>Deduplication:</strong> The process of identifying and removing duplicate or near-duplicate text segments from a dataset.</li>
+    <li><strong>Filtering (in data curation):</strong> The removal of low-quality or harmful documents from raw crawled data using classifiers or heuristics.</li>
+    <li><strong>Evaluation metrics:</strong> Standard tests and scores, such as <strong>perplexity</strong> and <strong>MMLU</strong>, used to measure model quality in language prediction or tasks.</li>
+</ul>
+
+<h2>Key Concepts</h2>
+<ul>
+    <li>The web contains a significant amount of low-quality or spam content; thus, raw crawls must be cleaned and transformed (from HTML to text) before they can be utilized.</li>
+    <li><strong>Filtering</strong> and <strong>deduplication</strong> are essential for improving data quality and preventing unnecessary computational waste on irrelevant or leaked test data.</li>
+    <li>Evaluation should encompass both next-token metrics (like <strong>perplexity</strong>) and task-based benchmarks (such as <strong>MMLU</strong>), potentially incorporating test-time techniques like <strong>chain-of-thought</strong>.</li>
+</ul>
+
+<h2>Important Notes</h2>
+<ul>
+    <li>Data must be actively acquired and processed; it does not simply "come from the internet" in a ready-to-use format.</li>
+    <li>Legal constraints and licensing issues can restrict the use of certain data; practitioners often opt to purchase curated datasets for advanced models.</li>
+    <li>In <strong>Assignment Four</strong>, students will receive raw <strong>Common Crawl</strong> data and are tasked with building filters and deduplication pipelines, followed by optimizing perplexity under a token budget.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>12. Mastering Alignment: Supervised Fine-Tuning and Learning from Feedback</h2>
+            <div class="timestamp">Time: 50:31 - 55:09</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_12_Alignment__supervised_fine-tuning_and_learning_from_feedback.jpg" alt="Frame from 50:31">
+            </div>
+
+            <div class="segment-content">
+                <h2>Summary</h2>
+<p>This unit explains how to turn a base next-token model into a useful assistant through <strong>alignment</strong>. There are two main phases:</p>
+<ol>
+    <li><strong>Supervised Fine-Tuning (SFT)</strong> on prompt-response pairs</li>
+    <li><strong>Learning from Feedback</strong> (preference data, verifiers) using simpler or full reinforcement learning methods to improve behavior, safety, and instruction following.</li>
+</ol>
+
+<h2>Definitions</h2>
+<ul>
+    <li><strong>Base model:</strong> A model trained to predict next tokens (raw language model) before any instruction tuning or alignment.</li>
+    <li><strong>Alignment:</strong> The process of adjusting a base model so it follows instructions, adopts desired style, and refuses harmful outputs.</li>
+    <li><strong>Supervised Fine-Tuning (SFT):</strong> Training the model on example prompt-response pairs so it learns to produce desirable outputs.</li>
+    <li><strong>Preference data:</strong> Data where humans (or other systems) indicate which of two model outputs they prefer for a given prompt.</li>
+    <li><strong>Verifier:</strong> A mechanism (could be learned) that judges whether a model response is correct or good for a given domain (useful for math or code evaluation).</li>
+    <li><strong>PPO (Proximal Policy Optimization):</strong> A reinforcement learning algorithm commonly used to optimize models with reward signals.</li>
+    <li><strong>DPO (Direct Preference Optimization):</strong> A simpler algorithm for learning from pairwise preference data without a full RL setup.</li>
+    <li><strong>GRPO (Grouped Relative Preference Optimization):</strong> A variant that simplifies RL by removing the value function and was developed for efficiency in alignment.</li>
+</ul>
+
+<h2>Key Concepts</h2>
+<ul>
+    <li><strong>SFT</strong> is often enough to give instruction-following from a good base model; small curated datasets can be powerful.</li>
+    <li><strong>Preference learning</strong> uses A/B comparisons to teach models what users like without full reward labeling.</li>
+    <li>For domains with concrete verifiers (math, code), a verifier can provide strong supervision; otherwise, RL methods like <strong>PPO</strong>, <strong>DPO</strong>, or <strong>GRPO</strong> are used.</li>
+    <li>Assignment five asks students to implement SFT and RL-from-feedback algorithms (<strong>DPO</strong> and <strong>GRPO</strong>) and evaluate results.</li>
+</ul>
+
+<h2>Important Notes</h2>
+<ul>
+    <li>Gathering high-quality SFT data is expensive; preference data and verifiers are ways to use cheaper supervision.</li>
+    <li>Choosing the right learning method depends on the type of feedback available (pairwise preferences vs scalar rewards vs verifiers).</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>13. Understanding Efficiency in Resource Regimes: A Course Recap</h2>
+            <div class="timestamp">Time: 55:55 - 58:06</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_13_Recap__efficiency_as_the_driving_principle_and_resource_regimes.jpg" alt="Frame from 55:55">
+            </div>
+
+            <div class="segment-content">
+                <h3>Course Recap: Efficiency as the Driving Principle</h3>
+<p>The instructor recaps that <strong>efficiency</strong> — getting the best model for a given compute and data budget — is the central idea throughout the course. Design decisions, including data processing, tokenization, architectures, and training regimes, depend on whether you are <strong>compute-poor</strong> or <strong>data-poor</strong>. This course particularly focuses on the <strong>compute-constrained regime</strong>.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Efficiency (in this course):</strong> Maximizing model quality (accuracy, loss) per unit of compute and data.</li>
+  <li><strong>Compute-constrained regime:</strong> A situation where compute is the scarce resource and data is relatively abundant.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<p>When operating in a compute-constrained environment, consider the following strategies:</p>
+<ul>
+  <li>Filter data aggressively to make the most of limited compute resources.</li>
+  <li>Utilize tokenization to enhance compute efficiency.</li>
+  <li>Prefer training recipes that expose more unique data quickly, such as single epoch passes.</li>
+</ul>
+<p>If you find yourself in a <strong>data-constrained regime</strong>, different strategies may become optimal, such as:</p>
+<ul>
+  <li>Conducting more epochs.</li>
+  <li>Changing architectures to better suit the available data.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<p>Throughout the course, it is assumed that students are mostly <strong>GPU-poor</strong> (compute-limited), and the teachings focus on making the most out of limited hardware. Remember:</p>
+<ul>
+  <li>Design choices that are effective in one regime may be suboptimal in another.</li>
+  <li>Always consider the <strong>resource regime</strong> when designing experiments.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>14. Understanding Tokenization: Definitions, Roles, and Motivations</h2>
+            <div class="timestamp">Time: 60:31 - 62:15</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_14_Tokenization__role,_basic_definitions,_and_motivation.jpg" alt="Frame from 60:31">
+            </div>
+
+            <div class="segment-content">
+                <h3>Introduction to Tokenization</h3>
+<p>Tokenization is a crucial process in natural language processing that transforms raw Unicode strings into sequences of integer token IDs, which models can efficiently utilize. The choice of tokenizer significantly impacts both the sequence length and the overall efficiency of the model.</p>
+
+<h3>Key Definitions</h3>
+<ul>
+  <li><strong>Tokenizer:</strong> A tool that converts between text strings and sequences of integers (tokens) that a model can process.</li>
+  <li><strong>Token:</strong> An integer code representing a piece of text, which can be a character, byte, or subword piece.</li>
+  <li><strong>Vocabulary Size:</strong> The total number of distinct tokens that the tokenizer can output.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Reversibility:</strong> Tokenizers must be reversible, meaning that encoding and decoding should reliably recover the original text.</li>
+  <li><strong>Bytes per Token:</strong> Each token represents a certain number of bytes, and the average bytes-per-token (compression ratio) affects both sequence length and computational efficiency.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>Tokenization design involves essential efficiency trade-offs; shorter token sequences can help reduce attention compute costs.</li>
+  <li>In practice, tokenizers often follow a convention where spaces are included as part of tokens. For example, a space followed by a word is treated differently than the word alone.</li>
+</ul>
+<p>Understanding these aspects of tokenization is vital for optimizing model performance and ensuring effective natural language processing.</p>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>15. Understanding Tokenizers and Compression Ratios in NLP</h2>
+            <div class="timestamp">Time: 62:15 - 64:57</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_15_Examples_of_tokenizers_and_compression_ratio.jpg" alt="Frame from 62:15">
+            </div>
+
+            <div class="segment-content">
+                <h3>Examples of Tokenizers and Compression Ratio</h3>
+
+<p>In this lecture segment, we explore how existing tokenizers, such as the <strong>GPT-2 tokenizer</strong>, function in the realm of natural language processing (NLP). The instructor demonstrates how these tokenizers split strings and highlights the <strong>bytes-per-token compression ratio</strong>, which is approximately <strong>1.6 for GPT tokenization</strong>.</p>
+
+<p>Students are encouraged to experiment with various tokenizers to gain insight into how common strings are segmented into tokens.</p>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Compression ratio (bytes per token)</strong>: The average number of bytes represented by one token; a higher ratio indicates more compression, resulting in shorter token sequences.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li>Tokenizers often treat <strong>whitespace</strong> as part of tokens and may split common words into single tokens when it is beneficial for processing.</li>
+    <li><strong>Numeric strings</strong> and other unusual text may be split into multiple tokens; this behavior reflects the statistics of the corpus used for training.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Engaging with tokenizers interactively helps to build intuition about how text maps to <strong>token IDs</strong>.</li>
+    <li>The <strong>bytes-per-token</strong> statistic is a valuable metric when considering model sequence lengths and computational requirements.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>16. Exploring Tokenization: Character, Byte, and Word Approaches</h2>
+            <div class="timestamp">Time: 65:03 - 71:02</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_16_Character-,_byte-,_and_word-based_tokenization__pros_and_cons.jpg" alt="Frame from 65:03">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>This section compares three simple tokenization methods: <strong>character-based</strong>, <strong>byte-based</strong>, and <strong>word-based</strong>. Each method has its own trade-offs:</p>
+<ul>
+    <li><strong>Character-based</strong> tokenization can waste vocabulary slots.</li>
+    <li><strong>Byte-based</strong> tokenization provides a consistent small vocabulary but results in long sequences.</li>
+    <li><strong>Word-based</strong> tokenization adapts well to common language use but can lead to an unbounded vocabulary and issues with out-of-vocabulary words.</li>
+</ul>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Character-based tokenization:</strong> Each Unicode character maps to a token (code point).</li>
+    <li><strong>Byte-based tokenization:</strong> Text is encoded as raw bytes (e.g., UTF-8 bytes), with each byte treated as a token (vocabulary size up to 256).</li>
+    <li><strong>Word-based tokenization:</strong> Text is split into words or segments by spaces or regular expressions, treating each segment as a token.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li><strong>Character-based:</strong> Produces a small average token length but results in a very sparse vocabulary, leading to inefficient use of vocabulary slots.</li>
+    <li><strong>Byte-based:</strong> Offers a fixed small vocabulary (0–255) and is robust to any input, but generates long sequences, which increases attention computation costs.</li>
+    <li><strong>Word-based:</strong> Provides adaptive tokenization (short tokens for common words) but faces challenges with an unlimited vocabulary and issues with rare or new words.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>Long token sequences from byte-based tokenization are costly because attention computation grows with sequence length.</li>
+    <li>Word-based systems encounter practical challenges such as handling unknown words and must carefully manage out-of-vocabulary tokens.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>17. Understanding Byte Pair Encoding (BPE) Tokenizer: Algorithm and Demonstration</h2>
+            <div class="timestamp">Time: 71:02 - 77:12</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_17_Byte_Pair_Encoding_(BPE)_tokenizer__algorithm_and_demo.jpg" alt="Frame from 71:02">
+            </div>
+
+            <div class="segment-content">
+                <h3>Summary</h3>
+<p>The Byte Pair Encoding (BPE) tokenizer is an effective algorithm used for compressing sequences of data. The process begins with bytes, where the algorithm counts common adjacent pairs, merges the most frequent pair into a new token, and repeats this process. To illustrate this, the instructor walks through a small example using the words <strong>"cat"</strong> and <strong>"hat"</strong> to demonstrate how repeated merges can compress common subsequences into tokens.</p>
+
+<h3>Definitions</h3>
+<ul>
+  <li><strong>Byte Pair Encoding (BPE)</strong>: A simple iterative algorithm that builds a tokenizer by repeatedly merging the most frequent adjacent pair of symbols (initially bytes) into a new token.</li>
+  <li><strong>Merge table</strong>: A record of which symbol pairs have been merged and what new token they map to.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>BPE learns token pieces from data</strong>, allocating vocabulary capacity to frequent byte sequences so that common chunks become single tokens.</li>
+  <li>The algorithm <strong>reduces sequence length</strong> as new tokens represent longer sequences of bytes, improving compression and efficiency.</li>
+  <li>Practical BPE implementations <strong>pre-tokenize text</strong> (e.g., by word-like splits) for efficiency and add special tokens and faster encoding implementations.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+  <li>A naive BPE implementation can be <strong>slow</strong> if it loops inefficiently over all merges; practical implementations optimize encode/decode processes.</li>
+  <li>Real tokenizers add <strong>pre-tokenization steps</strong> and special tokens; students will implement a performant BPE variant in the upcoming assignment.</li>
+</ul>
+            </div>
+        </div>
+<hr>
+
+        <div class="segment">
+            <h2>18. Understanding Tokenization: Key Insights and Future Directions</h2>
+            <div class="timestamp">Time: 77:49 - 78:36</div>
+
+            <div class="segment-frame">
+                <img src="frames/segment_18_Tokenization_summary_and_next_steps.jpg" alt="Frame from 77:49">
+            </div>
+
+            <div class="segment-content">
+                <h3>Tokenization Summary</h3>
+<p>In this lecture, we explored the concept of <strong>tokenization</strong>, which is the process of mapping text to integer sequences. The instructor highlighted that:</p>
+<ul>
+    <li><strong>Byte Pair Encoding (BPE)</strong> is the practical and widely used approach for tokenization today.</li>
+    <li>Tokenization remains essential until byte-level models can operate efficiently at frontier scales.</li>
+</ul>
+<p>Looking ahead, the next lecture will delve into <strong>PyTorch primitives</strong> and the importance of <strong>resource accounting</strong>.</p>
+
+<h3>Definitions</h3>
+<ul>
+    <li><strong>Tokenization:</strong> The process of turning Unicode text into tokens (integers) that models can utilize.</li>
+</ul>
+
+<h3>Key Concepts</h3>
+<ul>
+    <li><strong>BPE</strong> is an effective, data-driven, and historically significant algorithm that remains commonly used for tokenization.</li>
+    <li>Choices made during tokenization significantly impact compute efficiency, making them a crucial engineering decision.</li>
+</ul>
+
+<h3>Important Notes</h3>
+<ul>
+    <li>While byte-level models are elegant, current architectures still make tokenization a vital lever for efficiency.</li>
+    <li>In the next lecture, we will cover detailed <strong>PyTorch building blocks</strong> and focus on careful counting of <strong>FLOPs</strong> and <strong>memory usage</strong>.</li>
+</ul>
+            </div>
+        </div>
+
+        <p style="margin-top: 40px; color: #7f8c8d; font-size: 0.9em; text-align: center;">
+            Generated automatically from lecture transcript and video analysis.
+        </p>
+    </div>
+</body>
+</html>
