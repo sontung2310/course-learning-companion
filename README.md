@@ -39,7 +39,15 @@ The main motivations of this project are:
 
 ![System architecture](images/architecture.png)
 
-This is not "only an LLM with a vector DB." It is built like a **small production AI platform**: each layer has a clear job (safety, cost control, observability, swapping models) so the product can grow without rewriting the core app. That kind of **split design** is what teams look for when they move from demos to real users.
+This system is not just a standalone agent; it is designed as a production AI platform with a layered architecture to ensure stability, efficiency, and reliability. 
+
+- The API layer serves as the entry point for handling requests.
+- Gateway layer manages routing and orchestration across services.
+- Guardrails layer enforces safety, validation, and policy constraints on model outputs. The Observation layer provides monitoring, logging, and tracing to maintain system transparency and performance. 
+- Caching is integrated to optimize response time and reduce redundant computations
+- RAG (vector database) layer enables retrieval of relevant lecture materials to ground responses in accurate context.
+
+Together, these layers form a robust foundation that allows agents to operate consistently and effectively in real-world environments.
 
 ### API layer
 
