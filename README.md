@@ -37,6 +37,8 @@ The main motivations of this project are:
 
 ## System architecture
 
+![System architecture](images/architecture.png)
+
 This is not "only an LLM with a vector DB." It is built like a **small production AI platform**: each layer has a clear job (safety, cost control, observability, swapping models) so the product can grow without rewriting the core app. That kind of **split design** is what teams look for when they move from demos to real users.
 
 ### API layer
