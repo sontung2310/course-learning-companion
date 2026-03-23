@@ -45,7 +45,6 @@ This is not "only an LLM with a vector DB." It is built like a **small productio
 
 - **FastAPI** exposes stable HTTP endpoints (for example `/v1`) so any client can call the assistant the same way.
 - The web layer stays **small**: it handles requests, streaming, and health checks; the heavy work lives in services.
-- **Example:** the Streamlit UI only sends JSON to the API; it does not embed agent logic.
 - Shared setup (memory, orchestrator) runs **once** when the server starts, not on every request.
 
 ### Guardrails layer
@@ -59,28 +58,25 @@ This is not "only an LLM with a vector DB." It is built like a **small productio
 
 - All LLM calls go through **LiteLLM** (`infra/infra-llmlite`), so the app always uses one familiar OpenAI-style URL.
 - You can point the same code at **cloud APIs or local vLLM** by changing the gateway config, not the Python services.
-- **Example:** move from a hosted model to a local Qwen server for demos by editing `config.yaml`, not every `chat` call.
 - Rate limits and budgets can sit at the **proxy**, which protects spend when traffic spikes.
 
 ### Observation layer
 
 - **Langfuse** records traces: what the user asked, which steps ran, and what the model returned.
 - You can group traces by **user or session** to debug long chats in the Langfuse UI.
-- **Example:** when an answer looks wrong, you open **one trace** and see the full path instead of guessing.
 - Matches the self-hosted stack under `infra/infra-langfuse`.
 
 ### RAG (vector database)
 
 - **Chroma** stores lecture chunks; **RetrievalService** fetches the best matches for a question.
 - **CrewAI / LangChain tools** let the agent choose when to **look up** the course vs answer from general knowledge.
-- **Example:** a student asks about "week 4" and gets text **grounded in that lecture**, not a generic guess.
 - New videos are processed through **Airflow** (`ingest_data/`) so the index stays up to date.
 
 ### Cache
 
 - **Redis** holds short chat context and can cache **exact repeat questions** for a short TTL.
 - **LiteLLM's semantic cache** can match **similar** questions (not only identical text) so near-duplicates reuse an answer.
-- **Example:** many students ask the same FAQ; most hits are served from cache instead of hitting the model every time.
+- **Use cases:** Many students ask the same FAQ; most hits are served from cache instead of hitting the model every time.
 - That keeps responses **faster** and bills **lower** at busy times.
 
 ## Repository structure
