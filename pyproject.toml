@@ -1,0 +1,60 @@
+[project]
+name = "11-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langfuse>=3",
+    "boto3>=1.38.13",
+    "click>=8.1.8",
+    "elasticsearch>=9.0.1",
+    "fastapi>=0.115.12",
+    "fsspec>=2025.3.2",
+    "huggingface-hub>=0.30.2",
+    "ipython>=8.36.0",
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langgraph>=0.4.1",
+    "pandas>=2.2.3",
+    "pre-commit>=4.2.0",
+    "pyarrow>=17.0.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.9.1",
+    "pymilvus>=2.5.8",
+    "uvicorn[standard]>=0.34.0",
+    "minio>=7.1.0",
+    "feast>=0.47.0",
+    "numpy>=1.22.0",
+    "protobuf>=5.0.0",
+    "sentence-transformers>=4.1.0",
+    "psycopg2-binary>=2.9.10",
+    "litellm",
+    "apscheduler>=3.10.0",
+    "fastapi-sso>=0.4.0",
+    "crewai[tools]>=1.9.3",
+    "redis>=5.0.0",
+    "sqlalchemy>=2.0.0",
+    "asyncpg>=0.29.0",
+    "python-multipart>=0.0.20",
+    "greenlet>=3.2.3",
+    "mcp[cli]>=1.12.3",
+    "a2a-sdk>=0.3.0",
+    "mcpadapt>=0.1.11",
+    "fastmcp>=2.11.0",
+    "qdrant-client>=1.12.1",
+    "openai>=1.109.1",
+    "chromadb",
+    "nemoguardrails>=0.14.1",
+    "tavily-python>=0.7.23",
+    "redis>=5.0.0,<6.0.0",
+    "redisvl",
+    "requests>=2.32.0",
+    "streamlit>=1.41.0",
+    "yt-dlp",
+    "youtube-transcript-api>=0.6.0",
+]
+
+[tool.uv]
+override-dependencies = ["onnxruntime==1.13.1"]
